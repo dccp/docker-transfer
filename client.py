@@ -1,18 +1,28 @@
+import argparse
 import socket
 import sys
 
-HOST, PORT = "localhost", 9999
-data = " ".join(sys.argv[1:])
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def main():
+    parser = argparse.ArgumentParser(description='Send work to Zeppelin network')
+    parser.add_argument('-H', '--host', nargs='?', default='localhost')
+    parser.add_argument('-p', '--port', nargs='?', default=1208)
+    parser.add_argument('message', nargs='+')
+    args = parser.parse_args()
 
-try:
-    sock.connect((HOST, PORT))
-    sock.sendall(bytes(data + "\n", "utf-8"))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    data = ' '.join(args.message)
 
-    received = str(sock.recv(1024), "utf-8")
-finally:
-    sock.close()
+    try:
+        sock.connect((args.host, args.port))
+        sock.sendall(bytes(data + "\n", "utf-8"))
+        received = str(sock.recv(1024), "utf-8")
+    finally:
+        sock.close()
 
-print("Sent:     {}".format(data))
-print("Received: {}".format(received))
+    print("Sent:     {}".format(data))
+    print("Received: {}".format(received))
+
+
+if __name__ == '__main__':
+    main()
