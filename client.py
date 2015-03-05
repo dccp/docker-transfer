@@ -1,7 +1,9 @@
 import argparse
 import socket
+import helpers
 
 READ_SIZE = 1024
+
 
 def main():
     parser = argparse.ArgumentParser(description='Send work to Zeppelin network')
@@ -21,6 +23,9 @@ def main():
         if args.verbose:
             print("Reading file \"{}\"".format(args.filename))
         handle = open(args.filename, 'rb')
+        file_hash = helpers.hashtuple(args.filename, handle)
+        print(file_hash)
+
         kilobyte = handle.read(READ_SIZE)
         while (kilobyte):
             sock.send(kilobyte)
