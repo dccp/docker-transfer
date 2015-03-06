@@ -3,6 +3,7 @@ import socket
 import zlib
 from tempfile import TemporaryFile
 import helpers
+from io import BytesIO
 
 READ_SIZE = 1024
 
@@ -31,23 +32,26 @@ def main():
                 print("Client connected: {}".format(address))
             line = sc.recv(READ_SIZE)
             #handle = open(args.filename + str(i), 'wb')
-            handle = TemporaryFile(mode='w+b')
+            bufferer = BytesIO()
+            decompressor = zlib.decompressobj()
             j = 0
             while line:
                 j += 1
                 if args.verbose:
                     print("Recieved {}                   \r".format(helpers.sizeof_fmt(READ_SIZE * j)), end="")
-                handle.write(line)
+                decompressed = decompressor.decompress(line)
+                if decompressed:
+                    bufferer.write(decompressed)
                 line = sc.recv(READ_SIZE)
 
-            handle.close()
+            derp = open(args.filename + str(i), 'wb')
+            derp.write(bufferer.getvalue())
             sc.close()
             if args.verbose:
                 print("Client disconnected: {}".format(address))
 
         server.close()
     finally:
-        handle.close()
         sc.close()
         server.close()
 
