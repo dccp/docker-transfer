@@ -1,5 +1,8 @@
 import argparse
 import socket
+import zlib
+from tempfile import TemporaryFile
+import helpers
 
 READ_SIZE = 1024
 
@@ -27,12 +30,13 @@ def main():
             if args.verbose:
                 print("Client connected: {}".format(address))
             line = sc.recv(READ_SIZE)
-            handle = open(args.filename + str(i), 'wb')
+            #handle = open(args.filename + str(i), 'wb')
+            handle = TemporaryFile(mode='w+b')
             j = 0
             while line:
                 j += 1
                 if args.verbose:
-                    print("Recieved {} bytes\r".format(READ_SIZE * j), end="")
+                    print("Recieved {}                   \r".format(helpers.sizeof_fmt(READ_SIZE * j)), end="")
                 handle.write(line)
                 line = sc.recv(READ_SIZE)
 
