@@ -25,7 +25,7 @@ def main():
         if args.verbose:
             print("Reading file \"{}\"".format(args.image_hash))
         image_stream = dock.get_image(image=args.image_hash)
-        size = helpers.file_size(dock.inspect_image(image_id=args.image_hash)['VirtualSize'])
+        size = helpers.sizeof_fmt(dock.inspect_image(image_id=args.image_hash)['VirtualSize'])
         if args.verbose:
             print("Total file size: {}".format(size))
         if args.verbose:

@@ -29,16 +29,12 @@ def hashfile(afile, hasher, blocksize=65536):
         buf = afile.read(blocksize)
     return hasher.digest()
 
-_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'EiB', 'ZiB']
-
-def file_size(size):
-    # determine binary order in steps of size 10
-    # (coerce to int, // still returns a float)
-    order = int(log2(size) / 10) if size else 0
-    # format file size
-    # (.4g results in rounded numbers for exact matches and max 3 decimals,
-    # should never resort to exponent values)
-    return '{:.4g} {}'.format(size / (1 << (order * 10)), _suffixes[order])
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
 
 class MessageType(Enum):
     VERIFICATION = 0
