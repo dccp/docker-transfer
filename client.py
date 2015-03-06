@@ -1,6 +1,7 @@
 import argparse
 import socket
 import helpers
+import zlib
 from docker import Client
 
 READ_SIZE = 1024
@@ -17,6 +18,7 @@ def main():
 
     sock = socket.socket()
     dock = Client(timeout=3600)
+    compressor = zlib.compressobj()
     sock.connect((args.host, args.port))
     if args.verbose:
         print("Connected on {}:{}".format(args.host, args.port))
@@ -24,13 +26,23 @@ def main():
     try:
         if args.verbose:
             print("Reading file \"{}\"".format(args.image_hash))
-        image_stream = dock.get_image(image=args.image_hash)
-        size = helpers.sizeof_fmt(dock.inspect_image(image_id=args.image_hash)['VirtualSize'])
-        if args.verbose:
-            print("Total file size: {}".format(size))
-        if args.verbose:
-            print("Sending image stream...")
-        sock.send(image_stream.data)
+        with dock.get_image(image=args.image_hash) as image_stream
+            size = helpers.sizeof_fmt(dock.inspect_image(image_id=args.image_hash)['VirtualSize'])
+            if args.verbose:
+                print("Total file size: {}".format(size))
+            if args.verbose:
+                print("Sending image stream...")
+            j = 0
+            while True:
+                j += 1
+                block = image_stream.read(READ_SIZE)
+                if not block:
+                    break
+                if args.verbose:
+                    print("Sent {}".format(helpers.sizeof_fmt(READ_SIZE * j)))
+                compressed = compressor.compress(block)
+                if compressed:
+                    sock.send(compressed)
     finally:
         sock.close()
         if args.verbose:
