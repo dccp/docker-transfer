@@ -1,6 +1,7 @@
 import argparse
 import socket
 import helpers
+from docker import Client
 
 READ_SIZE = 1024
 
@@ -8,32 +9,29 @@ READ_SIZE = 1024
 def main():
     parser = argparse.ArgumentParser(description='Send work to Zeppelin network')
     parser.add_argument('-H', '--host', nargs='?', default='localhost')
-    parser.add_argument('-p', '--port', nargs='?', default=1208)
-    parser.add_argument('filename', nargs='?')
+    parser.add_argument('-p', '--port', nargs='?', type=int, default=1208)
+    parser.add_argument('image_hash', nargs='?')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.set_defaults(verbose=True)
     args = parser.parse_args()
 
     sock = socket.socket()
+    dock = Client(timeout=3600)
     sock.connect((args.host, args.port))
     if args.verbose:
         print("Connected on {}:{}".format(args.host, args.port))
 
     try:
         if args.verbose:
-            print("Reading file \"{}\"".format(args.filename))
-        handle = open(args.filename, 'rb')
-        file_hash = helpers.hashtuple(args.filename, handle)
-        print(file_hash)
-
-        kilobyte = handle.read(READ_SIZE)
-        while (kilobyte):
-            sock.send(kilobyte)
-            if args.verbose:
-                print("Sent {} bytes".format(READ_SIZE))
-            kilobyte = handle.read(READ_SIZE)
+            print("Reading file \"{}\"".format(args.image_hash))
+        image_stream = dock.get_image(image=args.image_hash)
+        size = helpers.file_size(dock.inspect_image(image_id=args.image_hash)['VirtualSize'])
+        if args.verbose:
+            print("Total file size: {}".format(size))
+        if args.verbose:
+            print("Sending image stream...")
+        sock.send(image_stream.data)
     finally:
-        handle.close()
         sock.close()
         if args.verbose:
             print("Socket closed")
