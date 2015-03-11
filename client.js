@@ -3,7 +3,9 @@
 var ArgumentParser = require('argparse').ArgumentParser;
 var net = require('net');
 var fs = require('fs');
-var spawn = require('child_process').spawn;
+var zlib = require('zlib');
+var helpers = require('./helpers.js');
+var child_process = require('child_process');
 
 var parser = new ArgumentParser({
   version: '0.0.1',
@@ -19,15 +21,34 @@ var args = parser.parseArgs();
 
 if (args.verbose) console.dir(args);
 
+var gzip = zlib.createGzip();
 var client = new net.Socket();
 
 client.connect(args.port, args.host, function() {
-  if (args.verbose) console.log('Connected to: ', args.host, args.port);
-  if (args.verbose) console.log('Reading docker image:', args.imageHash);
-  var cmd = spawn('docker', ['save', args.imageHash]);
+  if (args.verbose) {
+    console.log('Connected to: ', args.host, args.port);
+    child_process.exec('docker inspect ' + args.imageHash, function(error, stdout, stderr) {
+      var images = JSON.parse(stdout);
+      console.log('Image size: ', helpers.humanFileSize(images[0]['VirtualSize']));
+    });
+    console.log('Connected to: ', args.host, args.port);
+    console.log('Reading docker image:', args.imageHash);
+  }
+  var cmd = child_process.spawn('docker', ['save', args.imageHash]);
   if (args.verbose) console.log('Sending docker image...');
-  cmd.stdout.pipe(client);
-  cmd.stderr.on('data', function(data) { console.log("err: " + data); });
+  // var interval = setInterval(function() {
+  //   process.stdout.write('Written ' + helpers.humanFileSize(client.bytesWritten) + "         \r");
+  // }, 1000);
+
+  cmd.stdout.pipe(gzip).pipe(client);
+  // .on('finish', function() {
+  //   clearInterval(interval);
+  //   if (args.verbose) console.log('Finished successfully!');
+  // });
+
+  cmd.stderr.on('data', function(data) {
+    console.log("err: " + data);
+  });
 });
 
 client.on('error', function(err) {
