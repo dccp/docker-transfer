@@ -5,6 +5,9 @@ var net = require('net');
 var fs = require('fs');
 var buffer = require('buffer');
 var spawn = require('child_process').spawn;
+var zlib = require('zlib');
+
+var help = require('./helpers.js');
 
 var parser = new ArgumentParser({
   version: '0.0.1',
@@ -20,15 +23,26 @@ var args = parser.parseArgs();
 if (args.verbose) console.dir(args);
 
 var server = new net.createServer();
+var gunzip = zlib.createGunzip();
 
 server.listen(args.port, args.host, function() {
   if (args.verbose) console.log('Bound to: ', args.host, args.port);
 
   server.on('connection', function(conn) {
-    console.log('Client connected!');
-    conn.on('data', function(data) {
-      console.log('data received: ', data);
+    var connIp = conn.remoteAddress;
+    var connPort = conn.remotePort;
+    console.log(connIp+':'+connPort, 'connected.');
+
+    conn.on('close', function() {
+      console.log(connIp+':'+connPort, 'disconnected.');
     });
+
+    conn.on('data', function(data) {
+      process.stdout.write('Data received: ' + help.humanFileSize(conn.bytesRead) + "                \r");
+    });
+
+    var cmd = spawn('docker', ['import', '-', 'tjenna']);
+    conn.pipe(gunzip).pipe(cmd.stdin);
   });
 });
 
