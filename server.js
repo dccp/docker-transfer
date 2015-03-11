@@ -34,7 +34,7 @@ server.listen(args.port, args.host, function() {
     console.log(connIp+':'+connPort, 'connected.');
 
     conn.on('close', function() {
-      console.log(connIp+':'+connPort, 'disconnected.');
+      console.log("\n", connIp+':'+connPort, 'disconnected.');
     });
 
     conn.on('data', function(data) {
