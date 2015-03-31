@@ -3,11 +3,10 @@
 var ArgumentParser = require('argparse').ArgumentParser;
 var net = require('net');
 var fs = require('fs');
-var buffer = require('buffer');
-var spawn = require('child_process').spawn;
 var zlib = require('zlib');
-
-var help = require('./helpers.js');
+var helpers = require('./helpers.js');
+var child_process = require('child_process');
+var buffer = require('buffer');
 
 var parser = new ArgumentParser({
   version: '0.0.1',
@@ -38,10 +37,10 @@ server.listen(args.port, args.host, function() {
     });
 
     conn.on('data', function(data) {
-      process.stdout.write('Data received: ' + help.humanFileSize(conn.bytesRead) + "                \r");
+      process.stdout.write('Data received: ' + helpers.humanFileSize(conn.bytesRead) + "                \r");
     });
 
-    var cmd = spawn('docker', ['import', '-', 'tjenna']);
+    var cmd = child_process.spawn('docker', ['import', '-', 'tjenna']);
     conn.pipe(gunzip).pipe(cmd.stdin);
   });
 });
