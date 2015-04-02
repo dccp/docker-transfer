@@ -8,25 +8,35 @@ var buffer = require('buffer');
 var server = new net.createServer();
 var gunzip = zlib.createGunzip();
 
-server.listen(args.port, args.host, function() {
+export default {
+  receive(name, port = 1208) {
+    let host = '0.0.0.0';
 
-  server.on('connection', function(conn) {
-    var connIp = conn.remoteAddress;
-    var connPort = conn.remotePort;
+    return new Promise((resolve, reject) => {
+      server.listen(port, host, function() {
 
-    conn.on('close', function() {
-      console.log("\n" + connIp+':'+connPort, 'disconnected.');
+        server.on('connection', function(conn) {
+          var connIp = conn.remoteAddress;
+          var connPort = conn.remotePort;
+
+          conn.on('close', function() {
+            console.log("\n" + connIp+':'+connPort, 'disconnected.');
+          });
+
+          conn.on('data', function(data) {
+            process.stdout.write('Data received: ' + helpers.humanFileSize(conn.bytesRead) + "                \r");
+          });
+
+
+          let cmd = child_process.spawn('docker', ['import', '-', name]);
+          conn.pipe(gunzip).pipe(cmd.stdin);
+          resolve(name);
+        });
+      });
+
+      server.on('error', function(err) {
+        reject(err);
+      });
     });
-
-    conn.on('data', function(data) {
-      process.stdout.write('Data received: ' + helpers.humanFileSize(conn.bytesRead) + "                \r");
-    });
-
-    var cmd = child_process.spawn('docker', ['import', '-', 'tjenna']);
-    conn.pipe(gunzip).pipe(cmd.stdin);
-  });
-});
-
-server.on('error', function(err) {
-  console.log(err);
-});
+  }
+};

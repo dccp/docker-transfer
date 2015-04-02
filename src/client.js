@@ -9,46 +9,31 @@ var child_process = require('child_process');
 var Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
-// app.get('/getAvailableImages', function(req, res) {
-//   docker.listImages({all: false}, function(err, images) {
-//     res.json(images);
-//   });
-// });
-
-/*
- * Functions
- */
-function sendDocker(host, port, imageHash) {
-  var gzip = zlib.createGzip();
-  var client = new net.Socket();
-  client.connect(host, port, function() {
-    if (args.verbose) {
-      console.log('Connected to: ', host, port);
-      child_process.exec('docker inspect ' + imageHash, function(error, stdout, stderr) {
-        var images = JSON.parse(stdout);
-        console.log('Image size: ', helpers.humanFileSize(images[0]['VirtualSize']));
-      });
-      console.log('Connected to: ', host, port);
-      console.log('Reading docker image:', imageHash);
+export default {
+  listImages() => new Promise((resolve, reject) => docker.listImages({all: false}, function(err, images) {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(images);
     }
-    var cmd = child_process.spawn('docker', ['save', imageHash]);
-    if (args.verbose) console.log('Sending docker image...');
-    // var interval = setInterval(function() {
-    //   process.stdout.write('Written ' + helpers.humanFileSize(client.bytesWritten) + "         \r");
-    // }, 1000);
+  })),
+  sendImage(imageHash, host, port = 1208) => new Promise((resolve, reject) => {
+    var gzip = zlib.createGzip();
+    var client = new net.Socket();
+    client.connect(host, port, () => {
+      var cmd = child_process.spawn('docker', ['save', imageHash]);
 
-    cmd.stdout.pipe(gzip).pipe(client);
-    // .on('finish', function() {
-    //   clearInterval(interval);
-    //   if (args.verbose) console.log('Finished successfully!');
-    // });
+      cmd.stderr.on('data', (data) => {
+        reject(data);
+      });
 
-    cmd.stderr.on('data', function(data) {
-      console.log("err: " + data);
+      cmd.stdout.pipe(gzip).pipe(client);
+
+      resolve(true);
     });
-  });
 
-  client.on('error', function(err) {
-    console.log(err);
-  });
+    client.on('error', (err) => {
+      reject(err);
+    });
+  })
 }
