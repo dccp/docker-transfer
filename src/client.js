@@ -1,48 +1,19 @@
-'use strict';
-
 // Imports
-var ArgumentParser = require('argparse').ArgumentParser;
 var net = require('net');
 var fs = require('fs');
 var zlib = require('zlib');
 var helpers = require('./helpers.js');
 var child_process = require('child_process');
-var express = require('express');
-var app = express();
 
 // Dockerode instantiation
 var Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
-/*
- * Arguments
- */
-var parser = new ArgumentParser({
-  version: '0.0.1',
-  addHelp: true,
-  description: 'Zeppelin client'
-});
-parser.addArgument(['-p', '--port'], {defaultValue: 1208, type: 'int', help: 'Set the port number to connect to'});
-parser.addArgument(['-V', '--verbose'], {defaultValue: true, action: 'storeTrue', help: 'Print debug information'});
-var args = parser.parseArgs();
-if (args.verbose) console.dir(args);
-
-/*
- * REST routes
- */
-var server = app.listen(args.port, function() {
-  console.log('Docker transfer running on %s:%s', server.address().address, server.address().port);
-});
-
-app.get('/getAvailableImages', function(req, res) {
-  docker.listImages({all: false}, function(err, images) {
-    res.json(images);
-  });
-});
-
-app.post('/sendDocker', function(req, res) {
-  res.json({test:'dooonee'});
-})
+// app.get('/getAvailableImages', function(req, res) {
+//   docker.listImages({all: false}, function(err, images) {
+//     res.json(images);
+//   });
+// });
 
 /*
  * Functions

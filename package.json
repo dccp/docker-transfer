@@ -1,0 +1,30 @@
+{
+  "name": "docker-transfer",
+  "version": "0.0.1",
+  "description": "A decentralized marketplace for computing power",
+  "main": "src/main.js",
+  "scripts": {
+    "watch": "babel src/main.js --watch --out-file build/app.js --source-maps-inline",
+    "clean": "rm build/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dccp/docker-transfer"
+  },
+  "keywords": [
+    "zeppelin",
+    "ethereum"
+  ],
+  "author": "Name Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dccp/docker-transfer/issues"
+  },
+  "homepage": "https://github.com/dccp",
+  "devDependencies": {
+    "babel": "^4.7.16"
+  },
+  "dependencies": {
+    "dockerode": "^2.1.1"
+  }
+}
