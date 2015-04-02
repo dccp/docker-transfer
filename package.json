@@ -2,10 +2,11 @@
   "name": "docker-transfer",
   "version": "0.0.1",
   "description": "A decentralized marketplace for computing power",
-  "main": "src/main.js",
+  "main": "build/main.js",
   "scripts": {
-    "watch": "babel src/main.js --watch --out-file build/app.js --source-maps-inline",
-    "clean": "rm build/app.js"
+    "build": "babel src --out-dir build --source-maps-inline",
+    "watch": "babel src --watch --out-dir build --source-maps-inline",
+    "clean": "rm build/*.js"
   },
   "repository": {
     "type": "git",

@@ -10,14 +10,14 @@ var Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
 export default {
-  listImages() => new Promise((resolve, reject) => docker.listImages({all: false}, function(err, images) {
+  listImages: () => new Promise((resolve, reject) => docker.listImages({all: false}, (err, images) => {
     if (err) {
       reject(err);
     } else {
       resolve(images);
     }
   })),
-  sendImage(imageHash, host, port = 1208) => new Promise((resolve, reject) => {
+  sendImage: (imageHash, host, port = 1208) => new Promise((resolve, reject) => {
     var gzip = zlib.createGzip();
     var client = new net.Socket();
     client.connect(host, port, () => {

@@ -1,0 +1,7 @@
+"use strict";
+
+module["export"] = {
+  client: require("./client.js"),
+  server: require("./server.js")
+};
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL3NyYy9tYWluLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsTUFBTSxVQUFPLEdBQUc7QUFDZCxRQUFNLEVBQUUsT0FBTyxDQUFDLGFBQWEsQ0FBQztBQUM5QixRQUFNLEVBQUUsT0FBTyxDQUFDLGFBQWEsQ0FBQztDQUMvQixDQUFDIiwiZmlsZSI6InNyYy9tYWluLmpzIiwic291cmNlc0NvbnRlbnQiOlsibW9kdWxlLmV4cG9ydCA9IHtcbiAgY2xpZW50OiByZXF1aXJlKCcuL2NsaWVudC5qcycpLFxuICBzZXJ2ZXI6IHJlcXVpcmUoJy4vc2VydmVyLmpzJylcbn07XG4iXX0=
