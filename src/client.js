@@ -20,16 +20,29 @@ export default {
   sendImage: (imageHash, host, port = 1208) => new Promise((resolve, reject) => {
     var gzip = zlib.createGzip();
     var client = new net.Socket();
-    client.connect(host, port, () => {
-      var cmd = child_process.spawn('docker', ['save', imageHash]);
+    let image = docker.getImage(imageHash);
+    image.inspect((err, imageData) => {
+      let fileSize = imageData.VirtualSize;
+      console.log(fileSize, host, port);
+      client.connect(port, host, () => {
+        console.log(fileSize, host, port);
+        var cmd = child_process.spawn('docker', ['save', imageHash]);
 
-      cmd.stderr.on('data', (data) => {
-        reject(data);
+        cmd.stderr.on('data', (data) => {
+          reject(data);
+        });
+
+        let count = 0;
+        cmd.stdout.on('data', (data) => {
+          count += data.length;
+          console.log(count / fileSize);
+        }).pipe(gzip).pipe(client);
+
+        cmd.stdout.on('end', () => {
+          console.log('stream ended: finished');
+          resolve(true);
+        })
       });
-
-      cmd.stdout.pipe(gzip).pipe(client);
-
-      resolve(true);
     });
 
     client.on('error', (err) => {
