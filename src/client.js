@@ -1,15 +1,18 @@
 // Imports
-var net = require('net');
-var fs = require('fs');
-var zlib = require('zlib');
-var helpers = require('./helpers.js');
-var child_process = require('child_process');
+import io from "socket.io-client";
+import ss from "socket.io-stream";
+import fs from "fs";
+import zlib from "zlib";
+import child_process from "child_process";
+import Docker from "dockerode";
+
+import helpers from "./helpers.js";
 
 // Dockerode instantiation
-var Docker = require('dockerode');
-var docker = new Docker({socketPath: '/var/run/docker.sock'});
+let docker = new Docker({socketPath: '/var/run/docker.sock'});
+let gzip = zlib.createGzip();
 
-export default {
+default export {
   listImages: () => new Promise((resolve, reject) => docker.listImages({all: false}, (err, images) => {
     if (err) {
       reject(err);
@@ -18,35 +21,29 @@ export default {
     }
   })),
   sendImage: (imageHash, host, port = 1208) => new Promise((resolve, reject) => {
-    var gzip = zlib.createGzip();
-    var client = new net.Socket();
     let image = docker.getImage(imageHash);
     image.inspect((err, imageData) => {
       let fileSize = imageData.VirtualSize;
-      console.log(fileSize, host, port);
-      client.connect(port, host, () => {
-        console.log(fileSize, host, port);
-        var cmd = child_process.spawn('docker', ['save', imageHash]);
+      let socket = io.connect(`http://${host}:${port}`);
 
-        cmd.stderr.on('data', (data) => {
-          reject(data);
-        });
+      socket.on('connect', () => {
+        console.log('connect');
+        let cmd = child_process.spawn('docker', ['save', imageHash]);
+        let stream = ss.createStream();
+
+        ss(socket).emit('docker', imageData, stream);
 
         let count = 0;
-        cmd.stdout.on('data', (data) => {
+        cmd.stdout.on('data', data => {
           count += data.length;
-          console.log(count / fileSize);
-        }).pipe(gzip).pipe(client);
-
-        cmd.stdout.on('end', () => {
-          console.log('stream ended: finished');
+          process.stdout.write((count / fileSize * 100).toFixed(3) + "%   \r");
+        }).pipe(gzip).pipe(stream).on('end', () => {
+          console.log('stream ended');
+          socket.close();
           resolve(true);
-        })
+        });
       });
     });
-
-    client.on('error', (err) => {
-      reject(err);
-    });
   })
-}
+};
+

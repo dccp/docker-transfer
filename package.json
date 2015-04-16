@@ -1,6 +1,6 @@
 {
   "name": "docker-transfer",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A decentralized marketplace for computing power",
   "main": "build/main.js",
   "scripts": {
@@ -28,6 +28,7 @@
   "dependencies": {
     "dockerode": "^2.1.1",
     "socket.io": "^1.3.5",
+    "socket.io-client": "^1.3.5",
     "socket.io-stream": "^0.6.1"
   }
 }
