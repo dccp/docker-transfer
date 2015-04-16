@@ -1,49 +1,75 @@
-var net = require('net');
-var fs = require('fs');
-var zlib = require('zlib');
-var helpers = require('./helpers.js');
-var child_process = require('child_process');
-var buffer = require('buffer');
+var server = require('http').createServer(),
+    io = require('socket.io')(server),
+    ss = require('socket.io-stream'),
+    fs = require('fs'),
+    zlib = require('zlib'),
+    helpers = require('./helpers.js'),
+    child_process = require('child_process'),
+    buffer = require('buffer'),
+    sleep = require('sleep'),
+    gunzip = zlib.createGunzip();
 
-var server = new net.createServer();
-var gunzip = zlib.createGunzip();
-
-export default {
+var exports = {
   receive(name, port = 1208) {
     let host = '0.0.0.0';
 
     return new Promise((resolve, reject) => {
       server.listen(port, host, function() {
-
-        server.on('connection', function(conn) {
-          var connIp = conn.remoteAddress;
-          var connPort = conn.remotePort;
-
-          conn.on('close', function() {
-            console.log("\n" + connIp+':'+connPort, 'disconnected.');
+        console.log('tjenna server');
+        io.sockets.on('connection', socket => {
+          console.log('tjenna klient!!!');
+          ss(socket).on('docker', function(metadata, stream) {
+            let count = 0;
+            let cmd = child_process.spawn('docker', ['import', '-', name]);
+            stream.pipe(gunzip)
+              .on('data', data => {
+                count += data.length;
+                process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
+              })
+              .on('end', () => {
+                resolve();
+              })
+              .pipe(cmd.stdin);
+            // console.log('tjennahejdå');
           });
-
-          conn.on('data', function(data) {
-            process.stdout.write('Data received: ' 
-                                + helpers.humanFileSize(conn.bytesRead) 
-                                + "                \r");
+          socket.on('disconnect', function() {
+            server.close();
           });
-
-          conn.on('end', function() {
-            console.log("\n" + connIp+':'+connPort, 'ended.');
-            resolve(name);
+          socket.on('timeout', function() {
+            console.log('tiem');
+            socket.close();
           });
-
-          console.log(name);
-          // let cmd = child_process.spawn('docker', ['import', '-', name]);
-          // conn.pipe(gunzip).pipe(cmd.stdin);
         });
       });
+      //   server.on('connection', function(conn) {
+      //     var connIp = conn.remoteAddress;
+      //     var connPort = conn.remotePort;
 
-      console.log(name);
-      server.on('error', function(err) {
+      //     conn.on('close', function() {
+      //       console.log("\n" + connIp+':'+connPort, 'disconnected.');
+      //     });
+
+      //     conn.on('data', function(data) {
+      //       process.stdout.write('Data received: '
+      //                           + helpers.humanFileSize(conn.bytesRead)
+      //                           + "                \r");
+      //     });
+
+      //     conn.on('end', function() {
+      //       console.log("\n" + connIp+':'+connPort, 'ended.');
+      //       resolve(name);
+      //     });
+
+      //     console.log(name);
+      //     // let cmd = child_process.spawn('docker', ['import', '-', name]);
+      //     // conn.pipe(gunzip).pipe(cmd.stdin);
+      //   });
+      server.on('error', err => {
         reject(err);
       });
     });
   }
 };
+
+export default exports;
+exports.receive('lolubuntu');
