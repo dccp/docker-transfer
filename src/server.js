@@ -24,16 +24,23 @@ export default {
           });
 
           conn.on('data', function(data) {
-            process.stdout.write('Data received: ' + helpers.humanFileSize(conn.bytesRead) + "                \r");
+            process.stdout.write('Data received: ' 
+                                + helpers.humanFileSize(conn.bytesRead) 
+                                + "                \r");
           });
 
+          conn.on('end', function() {
+            console.log("\n" + connIp+':'+connPort, 'ended.');
+            resolve(name);
+          });
 
-          let cmd = child_process.spawn('docker', ['import', '-', name]);
-          conn.pipe(gunzip).pipe(cmd.stdin);
-          resolve(name);
+          console.log(name);
+          // let cmd = child_process.spawn('docker', ['import', '-', name]);
+          // conn.pipe(gunzip).pipe(cmd.stdin);
         });
       });
 
+      console.log(name);
       server.on('error', function(err) {
         reject(err);
       });
