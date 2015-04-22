@@ -7,15 +7,16 @@ var server = require('http').createServer(),
     child_process = require('child_process'),
     buffer = require('buffer'),
     sleep = require('sleep'),
-    gunzip = zlib.createGunzip();
+    gunzip = zlib.createGunzip(),
+    config = require('./config.js');
 
 var exports = {
-  receive(name, port = 1208) {
-    let host = '0.0.0.0';
+  receive(name, port = config.port) {
+    let host = config.bind;
 
     return new Promise((resolve, reject) => {
       server.listen(port, host, function() {
-        console.log('tjenna server');
+        console.log('tjenna server', host, port);
         io.sockets.on('connection', socket => {
           console.log('tjenna klient!!!');
           ss(socket).on('docker', function(metadata, stream) {
@@ -30,14 +31,9 @@ var exports = {
                 resolve();
               })
               .pipe(cmd.stdin);
-            // console.log('tjennahejdå');
           });
           socket.on('disconnect', function() {
             server.close();
-          });
-          socket.on('timeout', function() {
-            console.log('tiem');
-            socket.close();
           });
         });
       });
