@@ -7,12 +7,11 @@ var server = require('http').createServer(),
     child_process = require('child_process'),
     buffer = require('buffer'),
     sleep = require('sleep'),
-    gunzip = zlib.createGunzip(),
-    config = require('./config.js');
+    gunzip = zlib.createGunzip();
 
-var exports = {
-  receive(name, port = config.port) {
-    let host = config.bind;
+let exports = {
+  receive(name, port) {
+    let host = '0.0.0.0';
 
     return new Promise((resolve, reject) => {
       server.listen(port, host, function() {

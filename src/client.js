@@ -12,7 +12,7 @@ import helpers from "./helpers.js";
 let docker = new Docker({socketPath: '/var/run/docker.sock'});
 let gzip = zlib.createGzip();
 
-default export {
+export default {
   listImages: () => new Promise((resolve, reject) => docker.listImages({all: false}, (err, images) => {
     if (err) {
       reject(err);
