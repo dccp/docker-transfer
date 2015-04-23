@@ -6,7 +6,6 @@ var server = require('http').createServer(),
     helpers = require('./helpers.js'),
     child_process = require('child_process'),
     buffer = require('buffer'),
-    sleep = require('sleep'),
     gunzip = zlib.createGunzip();
 
 let exports = {
