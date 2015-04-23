@@ -27,7 +27,7 @@ export default {
       let socket = io.connect(`http://${host}:${port}`);
 
       socket.on('connect', () => {
-        console.log('connect');
+        console.log('Docker-transfer client connected to', host, port);
         let cmd = child_process.spawn('docker', ['save', imageHash]);
         let stream = ss.createStream();
 
@@ -38,7 +38,7 @@ export default {
           count += data.length;
           process.stdout.write((count / fileSize * 100).toFixed(3) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
-          console.log('stream ended');
+          console.log('Docker-transfer stream ended');
           socket.close();
           resolve(true);
         });

@@ -14,9 +14,9 @@ let exports = {
 
     return new Promise((resolve, reject) => {
       server.listen(port, host, function() {
-        console.log('tjenna server', host, port);
+        console.log('Docker-transfer server init at', host, port);
         io.sockets.on('connection', socket => {
-          console.log('tjenna klient!!!');
+          console.log('Docker-transfer server received connection');
           ss(socket).on('docker', function(metadata, stream) {
             let count = 0;
             let cmd = child_process.spawn('docker', ['import', '-', name]);
@@ -32,6 +32,7 @@ let exports = {
           });
           socket.on('disconnect', function() {
             server.close();
+            console.log('Docker-transfer server disconnected');
           });
         });
       });
@@ -66,4 +67,4 @@ let exports = {
 };
 
 export default exports;
-exports.receive('lolubuntu');
+
