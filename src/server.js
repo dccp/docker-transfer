@@ -19,13 +19,14 @@ let exports = {
           console.log('Docker-transfer server received connection');
           ss(socket).on('docker', function(metadata, stream) {
             let count = 0;
-            let cmd = child_process.spawn('docker', ['import', '-', name]);
+            let cmd = child_process.spawn('docker', ['load']);
             stream.pipe(gunzip)
               .on('data', data => {
                 count += data.length;
                 process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
               })
               .on('end', () => {
+                child_process.spawn('docker', ['tag', metadata.Id, name]);
                 resolve();
               })
               .pipe(cmd.stdin);
