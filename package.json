@@ -1,6 +1,6 @@
 {
   "name": "docker-transfer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A decentralized marketplace for computing power",
   "main": "build/main.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "zeppelin",
     "ethereum"
   ],
-  "author": "Name Name",
+  "author": "Doktor Träd",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dccp/docker-transfer/issues"
