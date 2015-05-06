@@ -31,7 +31,7 @@ let exports = {
       let socket = io.connect(`http://${host}:${port}`);
 
       socket.on('connect', () => {
-        log('CLIENT: connected to' + host + ":" + port);
+        log('CLIENT: connected to ' + host + ":" + port);
         log('CLIENT: compressing image ' + imageHash);
         let cmd = child_process.spawn('docker', ['save', imageHash]);
         let stream = ss.createStream();
