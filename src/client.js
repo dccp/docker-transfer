@@ -16,7 +16,7 @@ function log(str) {
     console.log(helpers.timestamp(), str);
 }
 
-export default {
+let exports = {
   listImages: () => new Promise((resolve, reject) => docker.listImages({all: false}, (err, images) => {
     if (err) {
       reject(err);
@@ -53,4 +53,6 @@ export default {
     });
   })
 };
+
+export default exports;
 
