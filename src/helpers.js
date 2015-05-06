@@ -13,5 +13,5 @@ export function humanFileSize(bytes) {
 };
 
 export function timestamp() {
-    return moment().format('YYYY-MM-DD h:mm:ss');
+    return moment().format('YYYY-MM-DD HH:mm:ss');
 }

@@ -6,7 +6,7 @@ import zlib from "zlib";
 import child_process from "child_process";
 import Docker from "dockerode";
 
-import helpers from "./helpers.js";
+var helpers = require("./helpers.js");
 
 // Dockerode instantiation
 let docker = new Docker({socketPath: '/var/run/docker.sock'});
