@@ -31,18 +31,21 @@ export default {
       let socket = io.connect(`http://${host}:${port}`);
 
       socket.on('connect', () => {
-        log('Docker-transfer client connected to' + host + ":" + port);
+        log('CLIENT: connected to' + host + ":" + port);
+        log('CLIENT: compressing image ' + imageHash);
         let cmd = child_process.spawn('docker', ['save', imageHash]);
         let stream = ss.createStream();
 
         ss(socket).emit('docker', imageData, stream);
+
+        log('CLIENT: sent image metadata for ' + imageHash);
 
         let count = 0;
         cmd.stdout.on('data', data => {
           count += data.length;
           process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
-          log('Docker-transfer stream ended');
+          log('CLIENT: End of stream.');
           socket.close();
           resolve(true);
         });

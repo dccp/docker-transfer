@@ -14,9 +14,9 @@ let exports = {
 
     return new Promise((resolve, reject) => {
       server.listen(port, host, function() {
-        log('Docker-transfer server init at', host, port);
+        log('SERVER: listening at ' + host + ":" + port);
         io.sockets.on('connection', socket => {
-          log('Docker-transfer server received connection');
+          log('SERVER: received connection');
           ss(socket).on('docker', function(metadata, stream) {
             let count = 0;
             let cmd = child_process.spawn('docker', ['load']);
@@ -26,7 +26,7 @@ let exports = {
                 process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
               })
               .on('end', () => {
-                log('End of stream. Data received: ' + helpers.humanFileSize(count));
+                log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
                 child_process.spawn('docker', ['tag', metadata.Id, name]);
                 resolve();
               })
