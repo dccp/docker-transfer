@@ -12,6 +12,10 @@ import helpers from "./helpers.js";
 let docker = new Docker({socketPath: '/var/run/docker.sock'});
 let gzip = zlib.createGzip();
 
+function log(str) {
+    console.log(helpers.timestamp(), str);
+}
+
 export default {
   listImages: () => new Promise((resolve, reject) => docker.listImages({all: false}, (err, images) => {
     if (err) {
@@ -36,7 +40,7 @@ export default {
         let count = 0;
         cmd.stdout.on('data', data => {
           count += data.length;
-          process.stdout.write((count / fileSize * 100).toFixed(3) + "%   \r");
+          process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
           console.log('Docker-transfer stream ended');
           socket.close();
