@@ -31,7 +31,7 @@ export default {
       let socket = io.connect(`http://${host}:${port}`);
 
       socket.on('connect', () => {
-        log('Docker-transfer client connected to', host, port);
+        log('Docker-transfer client connected to' + host + ":" + port);
         let cmd = child_process.spawn('docker', ['save', imageHash]);
         let stream = ss.createStream();
 
