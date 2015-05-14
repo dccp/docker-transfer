@@ -36,6 +36,7 @@ let exports = {
           });
           socket.on('disconnect', function() {
             server.close();
+            open = false;
             log('Docker-transfer server disconnected');
           });
         });
