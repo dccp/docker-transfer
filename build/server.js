@@ -20,7 +20,7 @@ var _exports = {
     var host = '0.0.0.0';
 
     return new Promise(function (resolve, reject) {
-      var callback = server.listen(port, host, function () {
+      var callback = function callback() {
         log('SERVER: listening at ' + host + ':' + port);
         io.sockets.on('connection', function (socket) {
           log('SERVER: received connection');
@@ -42,13 +42,15 @@ var _exports = {
             log('Docker-transfer server disconnected');
           });
         });
-      });
+      };
 
       if (open) {
-        server.close(callback);
+        server.close(function () {
+          server.listen(port, host, callback);
+        });
       } else {
         open = true;
-        callback();
+        server.listen(port, host, callback());
       }
 
       //   server.on('connection', function(conn) {
