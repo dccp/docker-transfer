@@ -46,7 +46,6 @@ var _exports = {
 
       if (open) {
         socket.removeAllListeners('connection');
-        socket.removeAllListeners('docker');
         server.close(function () {
           server.listen(port, host, callback);
         });
