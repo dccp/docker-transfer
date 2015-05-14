@@ -37,7 +37,6 @@ var _exports = {
             }).pipe(cmd.stdin);
           });
           socket.on('disconnect', function () {
-            console.log('server.close(), after file transfer');
             server.close();
             open = false;
             log('Docker-transfer server disconnected');
@@ -46,14 +45,13 @@ var _exports = {
       };
 
       if (open) {
-        console.log('server.close() followed by');
+        socket.removeAllListeners('connection');
+        socket.removeAllListeners('docker');
         server.close(function () {
-          console.log('server.listen()');
           server.listen(port, host, callback);
         });
       } else {
         open = true;
-        console.log('server.listern(), first time or after file transfer');
         server.listen(port, host, callback());
       }
 
