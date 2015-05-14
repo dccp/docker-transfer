@@ -13,30 +13,32 @@ let exports = {
     let host = '0.0.0.0';
 
     return new Promise((resolve, reject) => {
-      server.listen(port, host, function() {
-        log('SERVER: listening at ' + host + ":" + port);
-        io.sockets.on('connection', socket => {
-          log('SERVER: received connection');
-          ss(socket).on('docker', function(metadata, stream) {
-            let count = 0;
-            let cmd = child_process.spawn('docker', ['load']);
-            stream.pipe(gunzip)
-              .on('data', data => {
-                count += data.length;
-                process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
-              })
-              .on('end', () => {
-                log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
-                child_process.spawn('docker', ['tag', metadata.Id, name]);
-                resolve();
-              })
-              .pipe(cmd.stdin);
+      server.close(function() {
+          server.listen(port, host, function() {
+            log('SERVER: listening at ' + host + ":" + port);
+            io.sockets.on('connection', socket => {
+              log('SERVER: received connection');
+              ss(socket).on('docker', function(metadata, stream) {
+                let count = 0;
+                let cmd = child_process.spawn('docker', ['load']);
+                stream.pipe(gunzip)
+                  .on('data', data => {
+                    count += data.length;
+                    process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
+                  })
+                  .on('end', () => {
+                    log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
+                    child_process.spawn('docker', ['tag', metadata.Id, name]);
+                    resolve();
+                  })
+                  .pipe(cmd.stdin);
+              });
+              socket.on('disconnect', function() {
+                server.close();
+                log('Docker-transfer server disconnected');
+              });
+            });
           });
-          socket.on('disconnect', function() {
-            server.close();
-            log('Docker-transfer server disconnected');
-          });
-        });
       });
       //   server.on('connection', function(conn) {
       //     var connIp = conn.remoteAddress;
