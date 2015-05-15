@@ -16,10 +16,10 @@ let exports = {
 
     return new Promise((resolve, reject) => {
       let callback = function() {
-        log('SERVER: listening at ' + host + ":" + port);
+        log(`SERVER: listening at ${host}:${port}`);
         io.sockets.on('connection', socket => {
           log('SERVER: received connection');
-          ss(socket).on('docker', function(metadata, stream) {
+          ss(socket).on('docker', (metadata, stream) => {
             let count = 0;
             let cmd = child_process.spawn('docker', ['load']);
             stream.pipe(gunzip)
@@ -34,7 +34,7 @@ let exports = {
               })
               .pipe(cmd.stdin);
           });
-          socket.on('disconnect', function() {
+          socket.on('disconnect', () => {
             server.close();
             open = false;
             log('Docker-transfer server disconnected');
@@ -44,22 +44,18 @@ let exports = {
 
       if (open) {
         socket.removeAllListeners('connection');
-        server.close(function() {
-          server.listen(port, host, callback);
-        });
+        server.close(() => server.listen(port, host, callback));
       } else {
         open = true;
-        server.listen(port, host, callback());
+        server.listen(port, host, callback);
       }
-      server.on('error', err => {
-        reject(err);
-      });
+      server.on('error', err => reject(err));
     });
   },
-  run(hash, port) {
-    let ports = [port, ':', 80].join('');
+  run(hash, externalPort) {
+    let internalPort = 80;
     // docker run -d -p $EXTERNAL_PORT:$INTERNAL_PORT $IMAGE_HASH
-    child_process.spawn('docker', ['run', '-d', '-p', ports, metadata.Id]);
+    child_process.spawn('docker', ['run', '-d', '-p', `${externalPort}:${internalPort}`, metadata.Id]);
   }
 };
 
