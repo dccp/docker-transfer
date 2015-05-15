@@ -43,7 +43,11 @@ let exports = {
       }
 
       if (open) {
-        socket.removeAllListeners('connection');
+        io.removeAllListeners('connection');
+        io.removeAllListeners('docker');
+        io.removeAllListeners('data');
+        ss.removeAllListeners('docker');
+        ss.removeAllListeners('data');
         server.close(function() {
             server.listen(port, host, callback);
         });

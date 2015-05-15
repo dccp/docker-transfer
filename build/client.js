@@ -62,6 +62,7 @@ var exports = {
             process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
           }).pipe(gzip).pipe(stream).on("end", function () {
             log("CLIENT: End of stream.");
+            _socketIoClient2["default"].removeAllListeners("connect");
             socket.close();
             resolve(true);
           });
