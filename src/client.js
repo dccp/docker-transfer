@@ -12,6 +12,8 @@ var helpers = require("./helpers.js");
 let docker = new Docker({socketPath: '/var/run/docker.sock'});
 let gzip = zlib.createGzip();
 
+let socket;
+
 function log(str) {
     console.log(helpers.timestamp(), str);
 }
@@ -28,7 +30,7 @@ let exports = {
     let image = docker.getImage(imageHash);
     image.inspect((err, imageData) => {
       let fileSize = imageData.VirtualSize;
-      let socket = io.connect(`http://${host}:${port}`);
+      socket = io.connect(`http://${host}:${port}`);
 
       socket.on('connect', () => {
         log('CLIENT: connected to ' + host + ":" + port);
@@ -46,8 +48,8 @@ let exports = {
           process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
           log('CLIENT: End of stream.');
-          io.removeAllListeners('connect');
-          ss.removeAllListeners('end');
+          socket.removeAllListeners('connect');
+          socket.removeAllListeners('end');
           socket.close();
           resolve(true);
         });
