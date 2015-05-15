@@ -51,30 +51,6 @@ let exports = {
         open = true;
         server.listen(port, host, callback());
       }
-
-      //   server.on('connection', function(conn) {
-      //     var connIp = conn.remoteAddress;
-      //     var connPort = conn.remotePort;
-
-      //     conn.on('close', function() {
-      //       console.log("\n" + connIp+':'+connPort, 'disconnected.');
-      //     });
-
-      //     conn.on('data', function(data) {
-      //       process.stdout.write('Data received: '
-      //                           + helpers.humanFileSize(conn.bytesRead)
-      //                           + "                \r");
-      //     });
-
-      //     conn.on('end', function() {
-      //       console.log("\n" + connIp+':'+connPort, 'ended.');
-      //       resolve(name);
-      //     });
-
-      //     console.log(name);
-      //     // let cmd = child_process.spawn('docker', ['import', '-', name]);
-      //     // conn.pipe(gunzip).pipe(cmd.stdin);
-      //   });
       server.on('error', err => {
         reject(err);
       });
