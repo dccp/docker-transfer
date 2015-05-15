@@ -1,51 +1,48 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-var server = require('http').createServer(),
-    io = require('socket.io')(server),
-    ss = require('socket.io-stream'),
-    fs = require('fs'),
-    zlib = require('zlib'),
-    helpers = require('./helpers.js'),
-    child_process = require('child_process'),
-    buffer = require('buffer'),
+var server = require("http").createServer(),
+    io = require("socket.io")(server),
+    ss = require("socket.io-stream"),
+    fs = require("fs"),
+    zlib = require("zlib"),
+    helpers = require("./helpers.js"),
+    child_process = require("child_process"),
+    buffer = require("buffer"),
     gunzip = zlib.createGunzip();
 
 var open = undefined;
 
-var _exports = {
+var exports = {
   receive: function receive(name, port) {
-    var host = '0.0.0.0';
+    var host = "0.0.0.0";
 
     return new Promise(function (resolve, reject) {
       var callback = function callback() {
-        log('SERVER: listening at ' + host + ':' + port);
-        io.sockets.on('connection', function (socket) {
-          log('SERVER: received connection');
-          ss(socket).on('docker', function (metadata, stream) {
+        log("SERVER: listening at " + host + ":" + port);
+        io.sockets.on("connection", function (socket) {
+          log("SERVER: received connection");
+          ss(socket).on("docker", function (metadata, stream) {
             var count = 0;
-            var cmd = child_process.spawn('docker', ['load']);
-            stream.pipe(gunzip).on('data', function (data) {
+            var cmd = child_process.spawn("docker", ["load"]);
+            stream.pipe(gunzip).on("data", function (data) {
               count += data.length;
-              process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
-            }).on('end', function () {
-              log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
-              child_process.spawn('docker', ['tag', metadata.Id, name]);
+              process.stdout.write(Math.min(count / metadata.VirtualSize * 100, 100).toFixed(2) + "%    \r");
+            }).on("end", function () {
+              log("SERVER: End of stream. Data received: " + helpers.humanFileSize(count));
+              child_process.spawn("docker", ["tag", metadata.Id, name]);
               resolve(metadata.Id);
             }).pipe(cmd.stdin);
           });
-          socket.on('disconnect', function () {
+          socket.on("disconnect", function () {
             server.close();
             open = false;
-            log('Docker-transfer server disconnected');
+            log("Docker-transfer server disconnected");
           });
         });
       };
 
       if (open) {
-        socket.removeAllListeners('connection');
+        socket.removeAllListeners("connection");
         server.close(function () {
           server.listen(port, host, callback);
         });
@@ -53,15 +50,15 @@ var _exports = {
         open = true;
         server.listen(port, host, callback());
       }
-      server.on('error', function (err) {
+      server.on("error", function (err) {
         reject(err);
       });
     });
   },
   run: function run(hash, port) {
-    var ports = [port, ':', 80].join('');
+    var ports = [port, ":", 80].join("");
     // docker run -d -p $EXTERNAL_PORT:$INTERNAL_PORT $IMAGE_HASH
-    child_process.spawn('docker', ['run', '-d', '-p', ports, metadata.Id]);
+    child_process.spawn("docker", ["run", "-d", "-p", ports, metadata.Id]);
   }
 };
 
@@ -69,5 +66,5 @@ function log(str) {
   console.log(helpers.timestamp(), str);
 }
 
-exports['default'] = _exports;
-module.exports = exports['default'];
+module.exports = exports;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL3NyYy9zZXJ2ZXIuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSxJQUFJLE1BQU0sR0FBRyxPQUFPLENBQUMsTUFBTSxDQUFDLENBQUMsWUFBWSxFQUFFO0lBQ3ZDLEVBQUUsR0FBRyxPQUFPLENBQUMsV0FBVyxDQUFDLENBQUMsTUFBTSxDQUFDO0lBQ2pDLEVBQUUsR0FBRyxPQUFPLENBQUMsa0JBQWtCLENBQUM7SUFDaEMsRUFBRSxHQUFHLE9BQU8sQ0FBQyxJQUFJLENBQUM7SUFDbEIsSUFBSSxHQUFHLE9BQU8sQ0FBQyxNQUFNLENBQUM7SUFDdEIsT0FBTyxHQUFHLE9BQU8sQ0FBQyxjQUFjLENBQUM7SUFDakMsYUFBYSxHQUFHLE9BQU8sQ0FBQyxlQUFlLENBQUM7SUFDeEMsTUFBTSxHQUFHLE9BQU8sQ0FBQyxRQUFRLENBQUM7SUFDMUIsTUFBTSxHQUFHLElBQUksQ0FBQyxZQUFZLEVBQUUsQ0FBQzs7QUFFakMsSUFBSSxJQUFJLFlBQUEsQ0FBQzs7QUFFVCxJQUFJLE9BQU8sR0FBRztBQUNaLFNBQU8sRUFBQSxpQkFBQyxJQUFJLEVBQUUsSUFBSSxFQUFFO0FBQ2xCLFFBQUksSUFBSSxHQUFHLFNBQVMsQ0FBQzs7QUFFckIsV0FBTyxJQUFJLE9BQU8sQ0FBQyxVQUFDLE9BQU8sRUFBRSxNQUFNLEVBQUs7QUFDdEMsVUFBSSxRQUFRLEdBQUcsb0JBQVc7QUFDeEIsV0FBRyxDQUFDLHVCQUF1QixHQUFHLElBQUksR0FBRyxHQUFHLEdBQUcsSUFBSSxDQUFDLENBQUM7QUFDakQsVUFBRSxDQUFDLE9BQU8sQ0FBQyxFQUFFLENBQUMsWUFBWSxFQUFFLFVBQUEsTUFBTSxFQUFJO0FBQ3BDLGFBQUcsQ0FBQyw2QkFBNkIsQ0FBQyxDQUFDO0FBQ25DLFlBQUUsQ0FBQyxNQUFNLENBQUMsQ0FBQyxFQUFFLENBQUMsUUFBUSxFQUFFLFVBQVMsUUFBUSxFQUFFLE1BQU0sRUFBRTtBQUNqRCxnQkFBSSxLQUFLLEdBQUcsQ0FBQyxDQUFDO0FBQ2QsZ0JBQUksR0FBRyxHQUFHLGFBQWEsQ0FBQyxLQUFLLENBQUMsUUFBUSxFQUFFLENBQUMsTUFBTSxDQUFDLENBQUMsQ0FBQztBQUNsRCxrQkFBTSxDQUFDLElBQUksQ0FBQyxNQUFNLENBQUMsQ0FDaEIsRUFBRSxDQUFDLE1BQU0sRUFBRSxVQUFBLElBQUksRUFBSTtBQUNsQixtQkFBSyxJQUFJLElBQUksQ0FBQyxNQUFNLENBQUM7QUFDckIscUJBQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsS0FBSyxHQUFHLFFBQVEsQ0FBQyxXQUFXLEdBQUcsR0FBRyxFQUFFLEdBQUcsQ0FBQyxDQUFDLE9BQU8sQ0FBQyxDQUFDLENBQUMsR0FBRyxTQUFTLENBQUMsQ0FBQzthQUNoRyxDQUFDLENBQ0QsRUFBRSxDQUFDLEtBQUssRUFBRSxZQUFNO0FBQ2YsaUJBQUcsQ0FBQyx3Q0FBd0MsR0FBRyxPQUFPLENBQUMsYUFBYSxDQUFDLEtBQUssQ0FBQyxDQUFDLENBQUM7QUFDN0UsMkJBQWEsQ0FBQyxLQUFLLENBQUMsUUFBUSxFQUFFLENBQUMsS0FBSyxFQUFFLFFBQVEsQ0FBQyxFQUFFLEVBQUUsSUFBSSxDQUFDLENBQUMsQ0FBQztBQUMxRCxxQkFBTyxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsQ0FBQzthQUN0QixDQUFDLENBQ0QsSUFBSSxDQUFDLEdBQUcsQ0FBQyxLQUFLLENBQUMsQ0FBQztXQUNwQixDQUFDLENBQUM7QUFDSCxnQkFBTSxDQUFDLEVBQUUsQ0FBQyxZQUFZLEVBQUUsWUFBVztBQUNqQyxrQkFBTSxDQUFDLEtBQUssRUFBRSxDQUFDO0FBQ2YsZ0JBQUksR0FBRyxLQUFLLENBQUM7QUFDYixlQUFHLENBQUMscUNBQXFDLENBQUMsQ0FBQztXQUM1QyxDQUFDLENBQUM7U0FDSixDQUFDLENBQUM7T0FDSixDQUFBOztBQUVELFVBQUksSUFBSSxFQUFFO0FBQ1IsY0FBTSxDQUFDLGtCQUFrQixDQUFDLFlBQVksQ0FBQyxDQUFDO0FBQ3hDLGNBQU0sQ0FBQyxLQUFLLENBQUMsWUFBVztBQUNwQixnQkFBTSxDQUFDLE1BQU0sQ0FBQyxJQUFJLEVBQUUsSUFBSSxFQUFFLFFBQVEsQ0FBQyxDQUFDO1NBQ3ZDLENBQUMsQ0FBQztPQUNKLE1BQU07QUFDTCxZQUFJLEdBQUcsSUFBSSxDQUFDO0FBQ1osY0FBTSxDQUFDLE1BQU0sQ0FBQyxJQUFJLEVBQUUsSUFBSSxFQUFFLFFBQVEsRUFBRSxDQUFDLENBQUM7T0FDdkM7QUFDRCxZQUFNLENBQUMsRUFBRSxDQUFDLE9BQU8sRUFBRSxVQUFBLEdBQUcsRUFBSTtBQUN4QixjQUFNLENBQUMsR0FBRyxDQUFDLENBQUM7T0FDYixDQUFDLENBQUM7S0FDSixDQUFDLENBQUM7R0FDSjtBQUNELEtBQUcsRUFBQSxhQUFDLElBQUksRUFBRSxJQUFJLEVBQUU7QUFDZCxRQUFJLEtBQUssR0FBRyxDQUFDLElBQUksRUFBRSxHQUFHLEVBQUUsRUFBRSxDQUFDLENBQUMsSUFBSSxDQUFDLEVBQUUsQ0FBQyxDQUFDOztBQUVyQyxpQkFBYSxDQUFDLEtBQUssQ0FBQyxRQUFRLEVBQUUsQ0FBQyxLQUFLLEVBQUUsSUFBSSxFQUFFLElBQUksRUFBRSxLQUFLLEVBQUUsUUFBUSxDQUFDLEVBQUUsQ0FBQyxDQUFDLENBQUM7R0FDeEU7Q0FDRixDQUFDOztBQUVGLFNBQVMsR0FBRyxDQUFDLEdBQUcsRUFBRTtBQUNkLFNBQU8sQ0FBQyxHQUFHLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSxFQUFFLEdBQUcsQ0FBQyxDQUFDO0NBQ3pDOztpQkFFYyxPQUFPIiwiZmlsZSI6InNyYy9zZXJ2ZXIuanMiLCJzb3VyY2VzQ29udGVudCI6WyJ2YXIgc2VydmVyID0gcmVxdWlyZSgnaHR0cCcpLmNyZWF0ZVNlcnZlcigpLFxuICAgIGlvID0gcmVxdWlyZSgnc29ja2V0LmlvJykoc2VydmVyKSxcbiAgICBzcyA9IHJlcXVpcmUoJ3NvY2tldC5pby1zdHJlYW0nKSxcbiAgICBmcyA9IHJlcXVpcmUoJ2ZzJyksXG4gICAgemxpYiA9IHJlcXVpcmUoJ3psaWInKSxcbiAgICBoZWxwZXJzID0gcmVxdWlyZSgnLi9oZWxwZXJzLmpzJyksXG4gICAgY2hpbGRfcHJvY2VzcyA9IHJlcXVpcmUoJ2NoaWxkX3Byb2Nlc3MnKSxcbiAgICBidWZmZXIgPSByZXF1aXJlKCdidWZmZXInKSxcbiAgICBndW56aXAgPSB6bGliLmNyZWF0ZUd1bnppcCgpO1xuXG5sZXQgb3BlbjtcblxubGV0IGV4cG9ydHMgPSB7XG4gIHJlY2VpdmUobmFtZSwgcG9ydCkge1xuICAgIGxldCBob3N0ID0gJzAuMC4wLjAnO1xuXG4gICAgcmV0dXJuIG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHtcbiAgICAgIGxldCBjYWxsYmFjayA9IGZ1bmN0aW9uKCkge1xuICAgICAgICBsb2coJ1NFUlZFUjogbGlzdGVuaW5nIGF0ICcgKyBob3N0ICsgXCI6XCIgKyBwb3J0KTtcbiAgICAgICAgaW8uc29ja2V0cy5vbignY29ubmVjdGlvbicsIHNvY2tldCA9PiB7XG4gICAgICAgICAgbG9nKCdTRVJWRVI6IHJlY2VpdmVkIGNvbm5lY3Rpb24nKTtcbiAgICAgICAgICBzcyhzb2NrZXQpLm9uKCdkb2NrZXInLCBmdW5jdGlvbihtZXRhZGF0YSwgc3RyZWFtKSB7XG4gICAgICAgICAgICBsZXQgY291bnQgPSAwO1xuICAgICAgICAgICAgbGV0IGNtZCA9IGNoaWxkX3Byb2Nlc3Muc3Bhd24oJ2RvY2tlcicsIFsnbG9hZCddKTtcbiAgICAgICAgICAgIHN0cmVhbS5waXBlKGd1bnppcClcbiAgICAgICAgICAgICAgLm9uKCdkYXRhJywgZGF0YSA9PiB7XG4gICAgICAgICAgICAgICAgY291bnQgKz0gZGF0YS5sZW5ndGg7XG4gICAgICAgICAgICAgICAgcHJvY2Vzcy5zdGRvdXQud3JpdGUoTWF0aC5taW4oY291bnQgLyBtZXRhZGF0YS5WaXJ0dWFsU2l6ZSAqIDEwMCwgMTAwKS50b0ZpeGVkKDIpICsgJyUgICAgXFxyJyk7XG4gICAgICAgICAgICAgIH0pXG4gICAgICAgICAgICAgIC5vbignZW5kJywgKCkgPT4ge1xuICAgICAgICAgICAgICAgIGxvZygnU0VSVkVSOiBFbmQgb2Ygc3RyZWFtLiBEYXRhIHJlY2VpdmVkOiAnICsgaGVscGVycy5odW1hbkZpbGVTaXplKGNvdW50KSk7XG4gICAgICAgICAgICAgICAgY2hpbGRfcHJvY2Vzcy5zcGF3bignZG9ja2VyJywgWyd0YWcnLCBtZXRhZGF0YS5JZCwgbmFtZV0pO1xuICAgICAgICAgICAgICAgIHJlc29sdmUobWV0YWRhdGEuSWQpO1xuICAgICAgICAgICAgICB9KVxuICAgICAgICAgICAgICAucGlwZShjbWQuc3RkaW4pO1xuICAgICAgICAgIH0pO1xuICAgICAgICAgIHNvY2tldC5vbignZGlzY29ubmVjdCcsIGZ1bmN0aW9uKCkge1xuICAgICAgICAgICAgc2VydmVyLmNsb3NlKCk7XG4gICAgICAgICAgICBvcGVuID0gZmFsc2U7XG4gICAgICAgICAgICBsb2coJ0RvY2tlci10cmFuc2ZlciBzZXJ2ZXIgZGlzY29ubmVjdGVkJyk7XG4gICAgICAgICAgfSk7XG4gICAgICAgIH0pO1xuICAgICAgfVxuXG4gICAgICBpZiAob3Blbikge1xuICAgICAgICBzb2NrZXQucmVtb3ZlQWxsTGlzdGVuZXJzKCdjb25uZWN0aW9uJyk7XG4gICAgICAgIHNlcnZlci5jbG9zZShmdW5jdGlvbigpIHtcbiAgICAgICAgICAgIHNlcnZlci5saXN0ZW4ocG9ydCwgaG9zdCwgY2FsbGJhY2spO1xuICAgICAgICB9KTtcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIG9wZW4gPSB0cnVlO1xuICAgICAgICBzZXJ2ZXIubGlzdGVuKHBvcnQsIGhvc3QsIGNhbGxiYWNrKCkpO1xuICAgICAgfVxuICAgICAgc2VydmVyLm9uKCdlcnJvcicsIGVyciA9PiB7XG4gICAgICAgIHJlamVjdChlcnIpO1xuICAgICAgfSk7XG4gICAgfSk7XG4gIH0sXG4gIHJ1bihoYXNoLCBwb3J0KSB7XG4gICAgbGV0IHBvcnRzID0gW3BvcnQsICc6JywgODBdLmpvaW4oJycpO1xuICAgIC8vIGRvY2tlciBydW4gLWQgLXAgJEVYVEVSTkFMX1BPUlQ6JElOVEVSTkFMX1BPUlQgJElNQUdFX0hBU0hcbiAgICBjaGlsZF9wcm9jZXNzLnNwYXduKCdkb2NrZXInLCBbJ3J1bicsICctZCcsICctcCcsIHBvcnRzLCBtZXRhZGF0YS5JZF0pO1xuICB9XG59O1xuXG5mdW5jdGlvbiBsb2coc3RyKSB7XG4gICAgY29uc29sZS5sb2coaGVscGVycy50aW1lc3RhbXAoKSwgc3RyKTtcbn1cblxuZXhwb3J0IGRlZmF1bHQgZXhwb3J0cztcblxuIl19

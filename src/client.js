@@ -45,7 +45,7 @@ let exports = {
         let count = 0;
         cmd.stdout.on('data', data => {
           count += data.length;
-          process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
+          process.stdout.write(Math.min(count / fileSize * 100, 100).toFixed(2) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
           log('CLIENT: End of stream.');
           socket.close();

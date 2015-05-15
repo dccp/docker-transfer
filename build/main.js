@@ -1,10 +1,7 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-exports['default'] = {
-  client: require('./client.js'),
-  server: require('./server.js')
+module.exports = {
+  client: require("./client.js"),
+  server: require("./server.js")
 };
-module.exports = exports['default'];
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL3NyYy9tYWluLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O2lCQUFlO0FBQ2IsUUFBTSxFQUFFLE9BQU8sQ0FBQyxhQUFhLENBQUM7QUFDOUIsUUFBTSxFQUFFLE9BQU8sQ0FBQyxhQUFhLENBQUM7Q0FDL0IiLCJmaWxlIjoic3JjL21haW4uanMiLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgZGVmYXVsdCB7XG4gIGNsaWVudDogcmVxdWlyZSgnLi9jbGllbnQuanMnKSxcbiAgc2VydmVyOiByZXF1aXJlKCcuL3NlcnZlci5qcycpXG59O1xuIl19

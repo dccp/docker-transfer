@@ -25,7 +25,7 @@ let exports = {
             stream.pipe(gunzip)
               .on('data', data => {
                 count += data.length;
-                process.stdout.write((count / metadata.VirtualSize * 100).toFixed(2) + '%    \r');
+                process.stdout.write(Math.min(count / metadata.VirtualSize * 100, 100).toFixed(2) + '%    \r');
               })
               .on('end', () => {
                 log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
