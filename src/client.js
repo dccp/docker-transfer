@@ -48,8 +48,6 @@ let exports = {
           process.stdout.write((count / fileSize * 100).toFixed(2) + "%   \r");
         }).pipe(gzip).pipe(stream).on('end', () => {
           log('CLIENT: End of stream.');
-          socket.removeAllListeners('connect');
-          socket.removeAllListeners('end');
           socket.close();
           resolve(true);
         });
