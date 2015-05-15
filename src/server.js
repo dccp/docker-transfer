@@ -45,7 +45,7 @@ let exports = {
       if (open) {
         socket.removeAllListeners('connection');
         server.close(function() {
-            server.listen(port, host, callback);
+          server.listen(port, host, callback);
         });
       } else {
         open = true;
