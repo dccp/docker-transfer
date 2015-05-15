@@ -30,7 +30,7 @@ let exports = {
               .on('end', () => {
                 log('SERVER: End of stream. Data received: ' + helpers.humanFileSize(count));
                 child_process.spawn('docker', ['tag', metadata.Id, name]);
-                resolve();
+                resolve(metadata.Id);
               })
               .pipe(cmd.stdin);
           });
@@ -79,6 +79,11 @@ let exports = {
         reject(err);
       });
     });
+  },
+  run(hash, port) {
+    let ports = [port, ':', 80].join('');
+    // docker run -d -p $EXTERNAL_PORT:$INTERNAL_PORT $IMAGE_HASH
+    child_process.spawn('docker', ['run', '-d', '-p', ports, metadata.Id]);
   }
 };
 
