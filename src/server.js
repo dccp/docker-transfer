@@ -55,7 +55,7 @@ let exports = {
   run(hash, externalPort) {
     let internalPort = 80;
     // docker run -d -p $EXTERNAL_PORT:$INTERNAL_PORT $IMAGE_HASH
-    return child_process.execSync('docker', ['run', '-d', '-p', `${externalPort}:${internalPort}`, hash]).toString();
+    return child_process.execFileSync('docker', ['run', '-d', '-p', `${externalPort}:${internalPort}`, hash]).toString();
   }
 };
 
