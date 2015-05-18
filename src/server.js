@@ -55,7 +55,7 @@ let exports = {
   run(hash, externalPort) {
     let internalPort = 80;
     // docker run -d -p $EXTERNAL_PORT:$INTERNAL_PORT $IMAGE_HASH
-    child_process.spawn('docker', ['run', '-d', '-p', `${externalPort}:${internalPort}`, hash]);
+    return child_process.exec('docker', ['run', '-d', '-p', `${externalPort}:${internalPort}`, hash]).toString();
   }
 };
 
