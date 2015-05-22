@@ -1,6 +1,6 @@
 {
   "name": "docker-transfer",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "A decentralized marketplace for computing power",
   "main": "build/main.js",
   "scripts": {
